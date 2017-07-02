@@ -23,15 +23,33 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
+		convertFolder(false);
+		convertFolder(true);
+		System.out.println("Converted " + counter + " recipes!");
+		
+	}
+	
+	public static void convertFolder(boolean disabled) {
+		
+		//Parse disabled variable
+		String disabledInput = "./extra_recipes/";
+		if (disabled) {
+			disabledInput = "./disabled_recipes/";
+		}
+		String disabledOutput = "";
+		if (disabled) {
+			disabledOutput = "/disabled";
+		}
+		
 		//Shaped and NBT recipes
-		File inputDir = new File("./shaped_recipes");
+		File inputDir = new File(disabledInput + "shaped_recipes");
 		if (inputDir.exists() && inputDir.isDirectory()) {
 			
-			File outputDir = new File("./shaped");
+			File outputDir = new File("./shaped" + disabledOutput);
 			if (!outputDir.exists()) {
 				outputDir.mkdir();
 			}
-			File nbt = new File("./nbt");
+			File nbt = new File("./nbt" + disabledOutput);
 			if (!nbt.exists()) {
 				nbt.mkdir();
 			}
@@ -40,20 +58,20 @@ public class Main {
 				if (f != null && f.isFile()) {
 					String name = f.getName();
 					System.out.println("Converting " + name);
-					convertFile(f, new File(outputDir + "/" + counter + ".dat"), true);
+					convertFile(f, new File(outputDir + "/" + counter + ".dat"), disabled, true);
 					counter++;
 				}
 			}
 			
 		} else {
-			System.out.println("shaped_recipes folder not found!");
+			System.out.println(disabledInput + "shaped_recipes folder not found!");
 		}
 		
 		//Shapeless recipes
-		inputDir = new File("./shapeless_recipes");
+		inputDir = new File(disabledInput + "shapeless_recipes");
 		if (inputDir.exists() && inputDir.isDirectory()) {
 			
-			File outputDir = new File("./shapeless");
+			File outputDir = new File("./shapeless" + disabledOutput);
 			if (!outputDir.exists()) {
 				outputDir.mkdir();
 			}
@@ -62,20 +80,20 @@ public class Main {
 				if (f != null && f.isFile()) {
 					String name = f.getName();
 					System.out.println("Converting " + name);
-					convertFile(f, new File(outputDir + "/" + counter + ".dat"));
+					convertFile(f, new File(outputDir + "/" + counter + ".dat"), disabled);
 					counter++;
 				}
 			}
 			
 		} else {
-			System.out.println("shapeless_recipes folder not found!");
+			System.out.println(disabledInput + "shapeless_recipes folder not found!");
 		}
 		
 		//Furnace recipes
-		inputDir = new File("./furnace_recipes");
+		inputDir = new File(disabledInput + "furnace_recipes");
 		if (inputDir.exists() && inputDir.isDirectory()) {
 			
-			File outputDir = new File("./furnace");
+			File outputDir = new File("./furnace" + disabledOutput);
 			if (!outputDir.exists()) {
 				outputDir.mkdir();
 			}
@@ -84,25 +102,23 @@ public class Main {
 				if (f != null && f.isFile()) {
 					String name = f.getName();
 					System.out.println("Converting " + name);
-					convertFile(f, new File(outputDir + "/" + counter + ".dat"));
+					convertFile(f, new File(outputDir + "/" + counter + ".dat"), disabled);
 					counter++;
 				}
 			}
 			
 		} else {
-			System.out.println("furnace_recipes folder not found!");
+			System.out.println(disabledInput + "furnace_recipes folder not found!");
 		}
-		
-		System.out.println("Converted " + counter + " recipes!");
 		
 	}
 	
-	public static void convertFile(File inputFile, File outputFile) {
-		convertFile(inputFile, outputFile, false);
+	public static void convertFile(File inputFile, File outputFile, boolean disabled) {
+		convertFile(inputFile, outputFile, disabled, false);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void convertFile(File inputFile, File outputFile, boolean checkForNBT) {
+	public static void convertFile(File inputFile, File outputFile, boolean disabled, boolean checkForNBT) {
 		
 		//Read from file
 		NBTInputStream input;
@@ -146,7 +162,11 @@ public class Main {
 			ArrayList<CompoundTag> finalItems = new ArrayList<CompoundTag>();
 			for (CompoundTag item : items) {
 				if (item.getValue().containsKey("tag") && checkForNBT) {
-					outputFile = new File("./nbt/" + counter + ".dat");
+					if (disabled) {
+						outputFile = new File("./nbt/disabled/" + counter + ".dat");
+					} else {
+						outputFile = new File("./nbt/" + counter + ".dat");
+					}
 				}
 				
 				//Put item data in choices list
